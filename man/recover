@@ -1,0 +1,55 @@
+.TH RECOVER 4
+.SH NAME
+recover  \- reestablish file system connections
+.SH SYNOPSIS
+.B recover
+[
+.B -s
+]
+[
+.B -d
+]
+[
+.B net!]host
+[
+.B srvname
+]
+[
+.B spec
+]
+.SH DESCRIPTION
+.I Recover
+is a program meant to interpose itself between a 9p client and a 9p server (see
+.IR intro(5))
+on the client side and tries to reestablish the connection if it gets broken.
+It works by decoupling the server from the client. In order to do so, it keeps account
+of the state of the server and pushes it again when the connection breaks.
+This means mainly rewalking all the fids.
+
+Instead of seeing an "i/o on hungup channel", the connection will recover
+and the clients will have only seen a momentary block of the filesystem
+operations.
+.PP
+The host is the server recover is intended to connect to. Srvname is
+name recover will post in /srv. Spec is the spec parameter as used in
+mount (see
+.IR bind(1)).
+This spec will be the one used for all the time spec is running.
+.PP
+The
+.B -d
+flag makes recover verbose about the 9P messages it is sending and receiving.
+.PP
+The
+.B -s 
+flag tells recover that the server is a pipe in srv. This is used for
+debugging purposes.
+
+.SH SOURCE
+.B /sys/src/cmd/recover
+.SH BUGS
+The -s version not present in the p9port version.
+Only one specificier is supported for attach. Subsequent mounts should
+use the same specifier.
+.SH "SEE ALSO"
+.IR intro (5)
