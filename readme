@@ -1,0 +1,24 @@
+This is a partial go rewrite of the original C version.
+
+Original C version authors:
+Gorka Guardiola, paurea@gmail.com
+Russ Cox, rsc@swtch.com
+Eric Van Hensbergen, ericvh@gmail.com
+
+Original C version references:
+/n/sources/contrib/paurea/recover4e.tgz
+/n/sources/contrib/rsc/recover/recover.pdf
+
+This go version currently:
+- doesn't work on plan9,
+- can't do authentication,
+- works on windows and on unix where go works,
+- works on android (in termux), though not very useful at the moment,
+- works both with or without plan9port,
+- uses go net.Dial() address format (host:port),
+- when using without plan9port, it won't clean up socket file after terminating,
+- needs NAMESPACE set on windows,
+- it'll default stay in the foreground.
+
+More details:
+https://9fans.topicbox.com/groups/9fans/T1d7bf3c39e885267/recover4-go-rewrite
