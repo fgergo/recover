@@ -1,11 +1,12 @@
 package main
 
 import (
-	"9fans.net/go/plan9"
 	"net"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"9fans.net/go/plan9"
 )
 
 const (
@@ -130,7 +131,7 @@ func restartreq(r *Req, notused *Fid) {
 		if fidready(r.fid) {
 			err := plan9.WriteFcall(netconn, &r.fcall)
 			if err != nil {
-				logerror("restartreq(), WriteFcall() error, err: %v\nr:%v", err, r)
+				log("restartreq(), WriteFcall() error, err: %v\nr:%v", err, r)
 			} else {
 				chat("net <- (restarted) %v", r.fcall)
 			}
@@ -221,7 +222,7 @@ func queuereq(r *Req) {
 		nlast++
 		err := plan9.WriteFcall(netconn, &r.fcall)
 		if err != nil {
-			logerror("queuereq(), WriteFcall() error, err: %v\nr:%v", err, r)
+			log("queuereq(), WriteFcall() error, err: %v\nr:%v", err, r)
 		} else {
 			chat("net <- %v", &r.fcall)
 		}
@@ -425,8 +426,8 @@ func listensrv() {
 		thelock.Unlock()
 		f, err = plan9.ReadFcall(srvconn)
 	}
-	logerror("Exiting listensrv, plan9.ReadFcall(srvconn), err: %v", err)
-	logerror("socket '%v' exists?", srvname)
+	log("Exiting listensrv, plan9.ReadFcall(srvconn), err: %v", err)
+	log("socket '%v' exists?", srvname)
 	exitch <- true
 }
 
@@ -461,7 +462,7 @@ func externalresponse(r *Req, f *plan9.Fcall) {
 	}
 
 	if cf.Type == plan9.Rattach {
-		logerror("unexpected Rattach r.fcall: %v, *f: %v", r.fcall, *f)
+		log("unexpected Rattach r.fcall: %v, *f: %v", r.fcall, *f)
 		dumplast()
 	}
 

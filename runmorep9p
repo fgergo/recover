@@ -1,0 +1,10 @@
+#!/bin/rc
+
+
+tests=()
+
+
+for(i in `{seq 2 30})
+	for(j in `{seq 1 30})
+		tests=($tests $i' '$j)
+./runtestsp9p $tests

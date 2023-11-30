@@ -1,9 +1,10 @@
 package main
 
 import (
-	"9fans.net/go/plan9"
-	"log"
+	llog "log"
 	"os"
+
+	"9fans.net/go/plan9"
 
 	"fmt"
 	"time"
@@ -13,8 +14,6 @@ const (
 	MAXFID         = 4096   // maximum remote fid used
 	UINT32BITS     = 8 * 32 // nee: 8*sizeof(ulong)
 	NHASH          = 128
-	MAXMSG         = 8192
-	MAXPKT         = MAXMSG + plan9.IOHDRSZ
 	REDIAL_TIMEOUT = 1 * time.Second
 )
 
@@ -92,29 +91,21 @@ func (r Req) String() string {
 
 func must(b bool, r string) {
 	if !b {
-		log.Panicf("assertion failed, reason: %v", r)
+		logfatal("assertion failed, reason: %v", r)
 	}
 }
 
 func chat(format string, a ...interface{}) {
 	if *flag_chatty {
-		if a != nil {
-			fmt.Printf(format+"\n", a...)
-		} else {
-			fmt.Printf(format + "\n")
-		}
+		fmt.Printf(format+"\n", a...)
 	}
 }
 
-func logerror(format string, a ...interface{}) {
-	if a != nil {
-		log.Printf(format+"\n", a...)
-	} else {
-		log.Printf(format + "\n")
-	}
+func log(format string, a ...interface{}) {
+	llog.Printf(format, a...)
 }
 
 func logfatal(format string, a ...interface{}) {
-	logerror(format, a)
+	log(format, a)
 	os.Exit(1)
 }

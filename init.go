@@ -1,12 +1,13 @@
 package main
 
 import (
-	"9fans.net/go/plan9"
 	"errors"
 	"fmt"
+
+	"9fans.net/go/plan9"
 )
 
-var currmsize uint32
+var currmsize uint32 = 8192 + plan9.IOHDRSZ
 
 /*
  * Initial connection setup.  Assumes this is the only traffic
@@ -14,38 +15,35 @@ var currmsize uint32
  * threads.
  */
 
-/*
- * run 9P transaction; if errok is true Rerror is expected, hence not an error
- * transaction() sends on netconn a 9p message in req and returns reply
- */
+// run 9P transaction; errok controls whether to return -1 on Rerror.
 func transaction(req *plan9.Fcall, errok bool) (*plan9.Fcall, error) {
 	err := plan9.WriteFcall(netconn, req)
 	if err != nil {
-		logerror("transaction WriteFcall() error, err: %v", err)
+		log("transaction WriteFcall() error, err: %v", err)
 		return nil, err
 	}
 	chat("net <- %v", req)
 
 	resp, err := plan9.ReadFcall(netconn)
 	if err != nil {
-		logerror("transaction Read() error, err: %v", err)
+		log("transaction Read() error, err: %v", err)
 		return nil, err
 	}
 	chat("net -> %v", resp)
 
 	if resp.Tag != req.Tag {
 		err = errors.New(fmt.Sprintf("unexpected resp.Tag %v != req.Tag: %v", resp.Tag, req.Tag))
-		logerror("transaction err: %v", err)
+		log("transaction err: %v", err)
 		return nil, err
 	}
 	if resp.Type == plan9.Rerror && !errok {
 		err = errors.New(fmt.Sprintf("transaction response: %v", resp.Ename))
-		logerror("transaction err: %v", err)
+		log("transaction err: %v", err)
 		return nil, err
 	}
 	if resp.Type != plan9.Rerror && resp.Type != req.Type+1 {
 		err = errors.New(fmt.Sprintf("transaction response: unexpected resp.Type %v", resp.Type))
-		logerror("transaction err: %v", err)
+		log("transaction err: %v", err)
 		return nil, err
 	}
 
@@ -57,7 +55,7 @@ func xversion() error {
 
 	f.Type = plan9.Tversion
 	f.Tag = plan9.NOTAG
-	f.Msize = MAXPKT
+	f.Msize = currmsize
 	f.Version = "9P2000"
 
 	must(netconn != nil, "netconn == nil")
@@ -66,16 +64,14 @@ func xversion() error {
 		return err
 	}
 
-	if f.Msize > MAXPKT {
-		logfatal("server msize %v > requested msize %v", r.Msize, MAXPKT)
+	if r.Msize > f.Msize {
+		log("error? server msize %v > requested msize %v", r.Msize, f.Msize)
+		currmsize = r.Msize
 	}
 
-	if currmsize == 0 {
-		currmsize = f.Msize // initialize currmsize
-	}
-
-	if currmsize > r.Msize {
-		logfatal("server reduced msize on reconnect - was %v, now %v", currmsize, r.Msize)
+	if f.Msize > r.Msize {
+		log("error? server reduced msize on reconnect - was %v, now %v", f.Msize, r.Msize)
+		currmsize = r.Msize
 	}
 
 	if r.Version != "9P2000" {
@@ -287,14 +283,15 @@ func authattach(a *Attach) int {
 		freefid(authfid)
 		authfid = nil
 	case 1:
-		// not implemented in go version
-		return -1
+		// auth not implemented in go version
+		authfid = nil
+		// TODO: implement auth
 	}
 
 	chat("authattach(), attach: %v", a)
 	a.rootqid, err = xattach(a.rootfid, authfid, eve, a.aname)
 	if err != nil {
-		logerror("xattach() error: %v", err)
+		log("xattach() error: %v", err)
 		if authfid != nil {
 			xclunk(authfid)
 			freefid(authfid)

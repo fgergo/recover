@@ -38,11 +38,11 @@ func (idmap *Idmap) lookuplocal(local uint64) *Id {
 		return id
 	}
 
-	logerror("lookuplocal('%v') == nil", local)
+	log("lookuplocal('%v') == nil", local)
 	return nil
 }
 
-// lookupremote(remote) returns (local, remote) Id pair by remote
+// lookupremote(remote) returns (local, remote) id pair by remote
 func (idmap *Idmap) lookupremote(remote uint32) *Id {
 	idmap.RLock()
 	defer idmap.RUnlock()
@@ -51,7 +51,7 @@ func (idmap *Idmap) lookupremote(remote uint32) *Id {
 		return id
 	}
 
-	logerror("lookupremote('%v') == nil", remote)
+	log("lookupremote('%v') == nil", remote)
 	return nil
 }
 

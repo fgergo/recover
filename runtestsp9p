@@ -1,0 +1,71 @@
+#!/usr/local/plan9/bin/rc
+
+ns=`{namespace}
+rfile=/tmp/nofile
+lsformat='{$3="X"; $9="X"; print}'	# $3 and $9 change a lot
+
+
+#server=sources.cs.bell-labs.com
+server='9p.io'
+
+if(~ $#* 0)
+	*=(`{seq 2 30})	# okay that 1 doesn't work
+
+fn srcrun9p {
+	if(test -e $rfile)
+		rm $rfile
+	9p ls -l rtest/plan9/sys/src/cmd/acme/look.c | sort | uniq | awk $lsformat >> $rfile
+	9p read rtest/plan9/LICENSE | wc >> $rfile
+	9p ls rtest/plan9/sys/src/cmd/acme | sort | uniq | wc  >> $rfile
+}
+
+fn wikirun9p {
+	if(test -e $rfile)
+		rm $rfile
+	9p ls -l rtest/wiki/ | sort | uniq | awk $lsformat >> $rfile
+	9p read  rtest/wiki/history.html | wc  >> $rfile
+	9p ls  rtest/extra/ | sort | uniq | wc  >> $rfile
+}
+
+#if(test -e logp9/errors)
+#	rm logp9/errors
+
+echo CORRECT:
+rfile=/tmp/correct
+if(test -e $ns/rtest){
+	rm -f $ns/rtest
+}
+
+
+srv -n $server rtest
+srcrun9p
+wikirun9p
+
+
+cat $rfile
+
+for(i){
+	rfile = /tmp/recov
+	recovertest = $i
+	echo testing $recovertest...
+	rm -f $ns/rtest
+	slay recover | rc
+	n=`{echo $i|sed 's/ /_/g'}
+	./recover -d $server:564 rtest > log.$n >[2=1] &
+	sleep 1
+	echo $status
+	srcrun9p
+	wikirun9p
+	if (! diff /tmp/recov /tmp/correct ){
+		echo error in $i | tee >> errors
+		cat $rfile
+	} 
+	if not{
+		rm log.$n
+		echo ok
+	}
+	slay recover | rc
+}
+
+rm /tmp/correct
+rm /tmp/recov
