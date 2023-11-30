@@ -103,6 +103,7 @@ func (idmap *Idmap) freeid(id *Id) {
 	must(p1 != nil, "id.local does not exist")
 	p2 := idmap.lookupremote(id.remote)
 	must(p2 != nil, "id.remote does not exist")
+
 	must(p1 == p2, "id.local != id.remote") // can't happen
 
 	idmap.Lock() // TODO, later: sure no race?

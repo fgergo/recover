@@ -13,7 +13,6 @@ import (
 const (
 	MAXFID         = 4096   // maximum remote fid used
 	UINT32BITS     = 8 * 32 // nee: 8*sizeof(ulong)
-	NHASH          = 128
 	REDIAL_TIMEOUT = 1 * time.Second
 )
 

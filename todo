@@ -1,0 +1,6 @@
+- recover should not exit until first successful dial
+- redial with rog's https://github.com/go-retry/retry
+- block if cache is exhausted
+- export a redial trigger file, to initiate redial
+- raise MAXFID?
+- more cleanup
