@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"9fans.net/go/plan9"
+	"github.com/rogpeppe/retry"
 )
 
 const (
@@ -150,26 +151,37 @@ func redial() {
 	chat("dialing: %v", dialstring)
 
 	var err error
-Retry:
-	if netconn != nil {
-		netconn.Close()
+
+	var retryStrategy = retry.Strategy{
+		Delay: 500 * time.Millisecond,
+		// TODO: think about how to define retry strategy and add MaxDelay if appropriate
+		Factor: 2,
 	}
 
-	network := "tcp"
-	s := strings.Split(dialstring, "!")
-	address := s[0]
-	if len(s) == 2 {
-		network = s[0]
-		address = s[1]
-	}
-	netconn, err = net.Dial(network, address)
-	if err != nil {
-		chat("redial, Dial() error: %v", err)
-		if gen == 0 {
-			syslog("can't establish initial connection to %v", dialstring)	// original: sysfatal()
+Retry:
+	for i := retryStrategy.Start(); ; {
+		if netconn != nil {
+			netconn.Close()
 		}
-		time.Sleep(REDIAL_TIMEOUT)
-		goto Retry
+
+		// TODO: redo address parsing
+		network := "tcp"
+		s := strings.Split(dialstring, "!")
+		address := s[0]
+		if len(s) == 2 {
+			network = s[0]
+			address = s[1]
+		}
+		netconn, err = net.Dial(network, address)
+		if err == nil {
+			break
+		}
+		if gen == 0 {
+			syslog("can't establish initial connection to %v", dialstring) // original: sysfatal()
+		}
+		if !i.Next(nil) {
+			sysfatal("redial error")
+		}
 	}
 	chat("connected!")
 

@@ -2,3 +2,11 @@
 9fans.net/go v0.0.4/go.mod h1:lfPdxjq9v8pVQXUMBCx5EO5oLXWQFlKRQgs1kEkjoIM=
 github.com/fgergo/p9plib v0.0.6 h1:sWrJjxdjD7h3cqr1iySyFth8WA/Wvrl+B7eKadH+mRs=
 github.com/fgergo/p9plib v0.0.6/go.mod h1:gSffpk0W1vbra0YF++wfBEF5voA7OXDiwyoYKLo4EDk=
+github.com/frankban/quicktest v1.14.0 h1:+cqqvzZV87b4adx/5ayVOaYZ2CrvM4ejQvUdBzPPUss=
+github.com/google/go-cmp v0.5.6 h1:BKbKCqvP6I+rmFHt06ZmyQtvB8xAkWdhFyr0ZUNZcxQ=
+github.com/kr/pretty v0.3.0 h1:WgNl7dwNpEZ6jJ9k1snq4pZsg7DOEN8hP9Xw0Tsjwk0=
+github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
+github.com/rogpeppe/go-internal v1.6.1 h1:/FiVV8dS/e+YqF2JvO3yXRFbBLTIuSDkuC7aBOAvL+k=
+github.com/rogpeppe/retry v0.1.0 h1:6km4oqeZcFrnhx+PCPg/YxV3fnTdROBNVlSl8Pe/ztU=
+github.com/rogpeppe/retry v0.1.0/go.mod h1:/PtRtl9qXn+Pv5S4wN+Y5nusihQeI1PJ9U7KDcKzuvI=
+golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
