@@ -88,7 +88,7 @@ func (idmap *Idmap) allocid(local uint64) *Id {
 
 	if _, exists := idmap.local2id[local]; exists {
 		dumplast()
-		log("allocid(),  error: duplicate local id: %v\n", local)
+		syslog("allocid(),  error: duplicate local id: %v\n", local)
 		return nil
 	}
 

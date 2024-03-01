@@ -1,7 +1,7 @@
 package main
 
 import (
-	llog "log"
+	"log"
 	"os"
 
 	"9fans.net/go/plan9"
@@ -90,7 +90,7 @@ func (r Req) String() string {
 
 func must(b bool, r string) {
 	if !b {
-		logfatal("assertion failed, reason: %v", r)
+		syslogfatal("assertion failed, reason: %v", r)
 	}
 }
 
@@ -100,11 +100,11 @@ func chat(format string, a ...interface{}) {
 	}
 }
 
-func log(format string, a ...interface{}) {
-	llog.Printf(format, a...)
+func syslog(format string, a ...interface{}) {
+	log.Printf(format, a...)
 }
 
-func logfatal(format string, a ...interface{}) {
-	log(format, a...)
+func syslogfatal(format string, a ...interface{}) {
+	syslog(format, a...)
 	os.Exit(1)
 }

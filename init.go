@@ -19,31 +19,31 @@ var currmsize uint32 = 8192 + plan9.IOHDRSZ
 func transaction(req *plan9.Fcall, errok bool) (*plan9.Fcall, error) {
 	err := plan9.WriteFcall(netconn, req)
 	if err != nil {
-		log("transaction WriteFcall() error, err: %v", err)
+		syslog("transaction WriteFcall() error, err: %v", err)
 		return nil, err
 	}
 	chat("net <- %v", req)
 
 	resp, err := plan9.ReadFcall(netconn)
 	if err != nil {
-		log("transaction Read() error, err: %v", err)
+		syslog("transaction Read() error, err: %v", err)
 		return nil, err
 	}
 	chat("net -> %v", resp)
 
 	if resp.Tag != req.Tag {
 		err = errors.New(fmt.Sprintf("unexpected resp.Tag %v != req.Tag: %v", resp.Tag, req.Tag))
-		log("transaction err: %v", err)
+		syslog("transaction err: %v", err)
 		return nil, err
 	}
 	if resp.Type == plan9.Rerror && !errok {
 		err = errors.New(fmt.Sprintf("transaction response: %v", resp.Ename))
-		log("transaction err: %v", err)
+		syslog("transaction err: %v", err)
 		return nil, err
 	}
 	if resp.Type != plan9.Rerror && resp.Type != req.Type+1 {
 		err = errors.New(fmt.Sprintf("transaction response: unexpected resp.Type %v", resp.Type))
-		log("transaction err: %v", err)
+		syslog("transaction err: %v", err)
 		return nil, err
 	}
 
@@ -65,17 +65,17 @@ func xversion() error {
 	}
 
 	if r.Msize > f.Msize {
-		log("error? server msize %v > requested msize %v", r.Msize, f.Msize)
+		syslog("error? server msize %v > requested msize %v", r.Msize, f.Msize)
 		currmsize = r.Msize
 	}
 
 	if f.Msize > r.Msize {
-		log("error? server reduced msize on reconnect - was %v, now %v", f.Msize, r.Msize)
+		syslog("error? server reduced msize on reconnect - was %v, now %v", f.Msize, r.Msize)
 		currmsize = r.Msize
 	}
 
 	if r.Version != "9P2000" {
-		logfatal("server wants to speak %v", r.Version)
+		syslogfatal("server wants to speak %v", r.Version)
 	}
 
 	return nil
@@ -291,7 +291,7 @@ func authattach(a *Attach) int {
 	chat("authattach(), attach: %v", a)
 	a.rootqid, err = xattach(a.rootfid, authfid, eve, a.aname)
 	if err != nil {
-		log("xattach() error: %v", err)
+		syslog("xattach() error: %v", err)
 		if authfid != nil {
 			xclunk(authfid)
 			freefid(authfid)

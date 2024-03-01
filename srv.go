@@ -22,9 +22,11 @@ const (
 func csend(f *plan9.Fcall) {
 	last[nlast&(len(last)-1)] = *f
 	nlast++
+
+	chat("srv -> %v", f)
 	err := plan9.WriteFcall(srvconn, f)
 	if err != nil {
-		logfatal("srvconn write error: %v\n*f=%v", err, *f)
+		syslogfatal("srvconn write error: %v\n*f=%v", err, *f)
 	}
 
 }
@@ -131,7 +133,7 @@ func restartreq(r *Req, notused *Fid) {
 		if fidready(r.fid) {
 			err := plan9.WriteFcall(netconn, &r.fcall)
 			if err != nil {
-				log("restartreq(), WriteFcall() error, err: %v\nr:%v", err, r)
+				syslog("restartreq, WriteFcall() error: %v\nr:%v", err, r)
 			} else {
 				chat("net <- (restarted) %v", r.fcall)
 			}
@@ -164,7 +166,7 @@ Retry:
 	if err != nil {
 		chat("redial() Dial() error: %v", err)
 		if gen == 0 {
-			logfatal("can't establish initial connection to %v", dialstring)
+			syslogfatal("can't establish initial connection to %v", dialstring)
 		}
 		time.Sleep(REDIAL_TIMEOUT)
 		goto Retry
@@ -173,7 +175,7 @@ Retry:
 
 	err = xversion()
 	if err != nil {
-		logfatal("xversion(), err: %v", err)
+		syslogfatal("xversion(), err: %v", err)
 	}
 
 	var a *Attach
@@ -222,7 +224,7 @@ func queuereq(r *Req) {
 		nlast++
 		err := plan9.WriteFcall(netconn, &r.fcall)
 		if err != nil {
-			log("queuereq(), WriteFcall() error, err: %v\nr:%v", err, r)
+			syslog("queuereq(), WriteFcall() error, err: %v\nr:%v", err, r)
 		} else {
 			chat("net <- %v", &r.fcall)
 		}
@@ -325,7 +327,7 @@ func listensrv() {
 		last[nlast&(len(last)-1)] = *f
 		nlast++
 
-		chat("srv -> %v", f)
+		chat("srv <- %v", f)
 		switch f.Type {
 		case plan9.Tauth:
 			f.Type = plan9.Rerror
@@ -426,8 +428,8 @@ func listensrv() {
 		thelock.Unlock()
 		f, err = plan9.ReadFcall(srvconn)
 	}
-	log("Exiting listensrv, plan9.ReadFcall(srvconn), err: %v", err)
-	log("socket '%v' exists?", srvname)
+	syslog("Exiting listensrv, plan9.ReadFcall(srvconn), err: %v", err)
+	syslog("socket '%v' exists?", srvname)
 	exitch <- true
 }
 
@@ -462,7 +464,7 @@ func externalresponse(r *Req, f *plan9.Fcall) {
 	}
 
 	if cf.Type == plan9.Rattach {
-		log("unexpected Rattach r.fcall: %v, *f: %v", r.fcall, *f)
+		syslog("unexpected Rattach r.fcall: %v, *f: %v", r.fcall, *f)
 		dumplast()
 	}
 
@@ -734,7 +736,7 @@ func listennet() {
 
 			r := lookuprreq(f.Tag)
 			if r == nil {
-				chat("netconn: unexpected fcall: %v", f)
+				syslog("listennet: unexpected fcall: %v", f)
 				dumplast()
 
 				forallreqs(dumpreq, nil)
@@ -742,7 +744,7 @@ func listennet() {
 				continue
 			}
 			if f.Type != r.fcall.Type+1 && f.Type != plan9.Rerror {
-				chat("netconn, mismatch: %v, got: %v", r.fcall, f)
+				syslog("listennet, mismatch: %v, got: %v", r.fcall, f)
 				thelock.Unlock()
 				continue
 			}

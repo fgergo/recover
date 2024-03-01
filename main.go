@@ -59,13 +59,13 @@ func main() {
 
 	u, err := user.Current()
 	if err != nil {
-		logfatal("user.Current, err: %v", err)
+		syslogfatal("user.Current, err: %v", err)
 	} else {
 		eve = u.Username
 	}
 	err = p9plib.Post9pservice(&srvconn, srvname)
 	if err != nil {
-		logfatal("Post9pservice(), error: %v", err)
+		syslogfatal("Post9pservice(), error: %v", err)
 	}
 	attachment(spec)
 	redial()
