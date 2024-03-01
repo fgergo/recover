@@ -75,7 +75,7 @@ func xversion() error {
 	}
 
 	if r.Version != "9P2000" {
-		syslogfatal("server wants to speak %v", r.Version)
+		sysfatal("server wants to speak %v", r.Version)
 	}
 
 	return nil

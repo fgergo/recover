@@ -54,7 +54,7 @@ func dumplast() {
 	}
 
 	for ; i < nlast; i++ {
-		chat("dumplast: [%v] log %v", i, &last[i&(len(last)-1)])
+		syslog("dumplast: [%v] log %v", i, &last[i&(len(last)-1)])
 	}
 }
 

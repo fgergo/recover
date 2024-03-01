@@ -90,7 +90,7 @@ func (r Req) String() string {
 
 func must(b bool, r string) {
 	if !b {
-		syslogfatal("assertion failed, reason: %v", r)
+		sysfatal("assertion failed, reason: %v", r)
 	}
 }
 
@@ -104,7 +104,7 @@ func syslog(format string, a ...interface{}) {
 	log.Printf(format, a...)
 }
 
-func syslogfatal(format string, a ...interface{}) {
+func sysfatal(format string, a ...interface{}) {
 	syslog(format, a...)
 	os.Exit(1)
 }

@@ -26,7 +26,7 @@ func csend(f *plan9.Fcall) {
 	chat("srv -> %v", f)
 	err := plan9.WriteFcall(srvconn, f)
 	if err != nil {
-		syslogfatal("srvconn write error: %v\n*f=%v", err, *f)
+		sysfatal("srvconn write error: %v\n*f=%v", err, *f)
 	}
 
 }
@@ -76,7 +76,7 @@ func nextelem(sname string, cname string) string {
  * print a request
  */
 func dumpreq(r *Req, f *Fid) {
-	chat("dumpreq(), req %v", r.fcall)
+	syslog("dumpreq, req %v", r.fcall)
 }
 
 /*
@@ -164,9 +164,9 @@ Retry:
 	}
 	netconn, err = net.Dial(network, address)
 	if err != nil {
-		chat("redial() Dial() error: %v", err)
+		chat("redial, Dial() error: %v", err)
 		if gen == 0 {
-			syslogfatal("can't establish initial connection to %v", dialstring)
+			syslog("can't establish initial connection to %v", dialstring)	// original: sysfatal()
 		}
 		time.Sleep(REDIAL_TIMEOUT)
 		goto Retry
@@ -175,7 +175,7 @@ Retry:
 
 	err = xversion()
 	if err != nil {
-		syslogfatal("xversion(), err: %v", err)
+		sysfatal("xversion(), err: %v", err)
 	}
 
 	var a *Attach
@@ -625,7 +625,7 @@ func clienterror(r *Req, f *Fid) {
 func internalresponse(r *Req, f *plan9.Fcall) {
 	switch f.Type {
 	default:
-		chat("unexpected internal response %v %v", *f, r.fcall)
+		syslog("unexpected internal response %v %v", *f, r.fcall)
 		dumplast()
 		freereq(r)
 
@@ -736,7 +736,7 @@ func listennet() {
 
 			r := lookuprreq(f.Tag)
 			if r == nil {
-				syslog("listennet: unexpected fcall: %v", f)
+				syslog("listennet, unexpected fcall: %v", f)
 				dumplast()
 
 				forallreqs(dumpreq, nil)
