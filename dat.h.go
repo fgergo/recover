@@ -105,6 +105,6 @@ func log(format string, a ...interface{}) {
 }
 
 func logfatal(format string, a ...interface{}) {
-	log(format, a)
+	log(format, a...)
 	os.Exit(1)
 }
