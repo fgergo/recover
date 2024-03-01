@@ -38,7 +38,8 @@ func (idmap *Idmap) lookuplocal(local uint64) *Id {
 		return id
 	}
 
-	log("lookuplocal('%v') == nil", local)
+	// log("lookuplocal('%v') == nil, name: %v", local, idmap.name)
+
 	return nil
 }
 
@@ -51,7 +52,8 @@ func (idmap *Idmap) lookupremote(remote uint32) *Id {
 		return id
 	}
 
-	log("lookupremote('%v') == nil", remote)
+	// log("lookupremote('%v') == nil", remote)
+
 	return nil
 }
 
@@ -86,7 +88,8 @@ func (idmap *Idmap) allocid(local uint64) *Id {
 
 	if _, exists := idmap.local2id[local]; exists {
 		dumplast()
-		logfatal("allocid(), error: duplicate local id: %v\n", local)
+		log("allocid(),  error: duplicate local id: %v\n", local)
+		return nil
 	}
 
 	remote := idmap.allocremote()
@@ -103,6 +106,7 @@ func (idmap *Idmap) freeid(id *Id) {
 	must(p1 != nil, "id.local does not exist")
 	p2 := idmap.lookupremote(id.remote)
 	must(p2 != nil, "id.remote does not exist")
+
 	must(p1 == p2, "id.local != id.remote") // can't happen
 
 	idmap.Lock() // TODO, later: sure no race?
