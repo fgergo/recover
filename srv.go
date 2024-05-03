@@ -775,7 +775,9 @@ func listennet() {
 		}
 
 		// wait for requests to come in
+		thelock.Lock()
 		nreq := forallreqs(func(r *Req, f *Fid) {}, nil)
+		thelock.Unlock()
 		for nreq == 0 {
 			thelock.Lock()
 			nreq = forallreqs(func(r *Req, f *Fid) {}, nil)
