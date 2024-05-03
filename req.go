@@ -77,8 +77,8 @@ func forallreqs(fn func(*Req, *Fid), fid *Fid) int {
 	for _, req := range orig {
 		if fn != nil {
 			fn(req, fid)
-			n++
 		}
+		n++
 	}
 	return n
 }
