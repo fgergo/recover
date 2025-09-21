@@ -12,7 +12,7 @@ import (
 
 const (
 	MAXFID         = 4096   // maximum remote fid used
-	UINT32BITS     = 8 * 32 // nee: 8*sizeof(ulong)
+	ULONGBITS     = 8 * 8 // nee: 8*sizeof(ulong)
 	REDIAL_TIMEOUT = 1 * time.Second
 )
 
@@ -23,7 +23,7 @@ type Attach struct { // one per attach specifier
 	rootqid plan9.Qid // root qid of attach
 	gen     int       // gen. number of connection that saw last successful attach
 	rgen    int       // gen. number of connection that last started to recover this
-	mcount  uint32    // mount id for authenticators
+	mcount  uint64    // mount id for authenticators
 }
 
 func (a Attach) String() string {

@@ -17,7 +17,7 @@ func (id Id) String() string {
 type Idmap struct {
 	local2id  map[uint64]*Id
 	remote2id map[uint32]*Id
-	v         [MAXFID / UINT32BITS]uint32
+	v         [MAXFID / ULONGBITS]uint64
 	sync.RWMutex
 }
 
@@ -58,27 +58,27 @@ func (idmap *Idmap) lookupremote(remote uint32) *Id {
 }
 
 // must be called only from allocid()
-func (idmap *Idmap) allocremote() uint32 {
-	var i int
-	var bit uint32
+func (idmap *Idmap) allocremote() uint64 {
+	var i uint64
+	var bit uint64
 
-	for i = 0; i < len(idmap.v); i++ {
-		if idmap.v[i] != ^uint32(0) {
+	for i = 0; i < uint64(len(idmap.v)); i++ {
+		if idmap.v[i] != ^uint64(0) {
 			break
 		}
 	}
 
-	must(i < len(idmap.v), "out of rfids")
+	must(i < uint64(len(idmap.v)), "out of rfids")
 
 	bit = ^idmap.v[i]
 	bit &= -bit /* grab lowest bit */
 	idmap.v[i] ^= bit
 	must(bit != 0, "bit == 0")
-	for i = i * 8 * UINT32BITS; (bit & 1) == 0; i++ {
+	for i = i * 8 * ULONGBITS; (bit & 1) == 0; i++ {
 		bit >>= 1
 	}
 
-	return uint32(i)
+	return uint64(i)
 }
 
 // TODO: later, consider returning only remote (uint32) instead of *Id
@@ -92,7 +92,7 @@ func (idmap *Idmap) allocid(local uint64) *Id {
 		return nil
 	}
 
-	remote := idmap.allocremote()
+	remote := uint32(idmap.allocremote())
 	id := new(Id)
 	id.local = local
 	id.remote = remote
@@ -115,8 +115,8 @@ func (idmap *Idmap) freeid(id *Id) {
 	must(id.remote < MAXFID, "remote >= MAXFID")
 
 	// free remote tag
-	i := uint32(id.remote / (8 * UINT32BITS))
-	bit := uint32(1) << (id.remote % (8 * UINT32BITS))
+	i := uint32(id.remote / (8 * ULONGBITS))
+	bit := uint64(1) << (id.remote % (8 * ULONGBITS))
 	idmap.v[i] &= ^bit
 
 	// delete last reference to id
